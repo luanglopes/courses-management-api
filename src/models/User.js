@@ -1,8 +1,13 @@
-const { Model } = require('objection')
+const { ValidationError } = require('objection')
+const bcrypt = require('bcrypt')
+const unique = require('objection-unique')({
+  fields: ['email'],
+})
 
+const BaseModel = require('./BaseModel')
 const Course = require('./Course')
 
-class User extends Model {
+class User extends unique(BaseModel) {
   static get tableName () {
     return 'users'
   }
@@ -10,7 +15,7 @@ class User extends Model {
   static get jsonSchema () {
     return {
       type: 'object',
-      required: ['name', 'email', 'password'],
+      required: ['name', 'email'],
 
       properties: {
         id: { type: 'integer' },
@@ -24,7 +29,7 @@ class User extends Model {
   static get relationMappings () {
     return {
       courses: {
-        relation: Model.ManyToManyRelation,
+        relation: BaseModel.ManyToManyRelation,
         modelClass: Course,
         join: {
           from: 'users.id',
@@ -35,6 +40,40 @@ class User extends Model {
           to: 'courses.id',
         },
       },
+    }
+  }
+
+  static get hidden () {
+    return ['password']
+  }
+
+  async $beforeInsert (queryContext) {
+    await super.$beforeInsert(queryContext)
+
+    if (!this.password) {
+      throw new ValidationError({
+        data: {
+          password: [
+            {
+              message: 'is a required property',
+              keyword: 'required',
+              params: {
+                missingProperty: 'password',
+              },
+            },
+          ],
+        },
+      })
+    }
+
+    this.password = await bcrypt.hash(this.password, 10)
+  }
+
+  async $beforeUpdate (opt, queryContext) {
+    await super.$beforeUpdate(opt, queryContext)
+
+    if (this.password) {
+      this.password = await bcrypt.hash(this.password, 10)
     }
   }
 }

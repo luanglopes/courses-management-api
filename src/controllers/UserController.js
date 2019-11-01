@@ -1,23 +1,38 @@
+const createError = require('http-errors')
+
 const User = require('../models/User')
 
+const handleError = error => {
+  return error.name === 'ValidationError'
+    ? createError(400, { fields: error.data })
+    : error
+}
+
 class UserController {
-  static async list (req, res) {
+  static async list (req, res, next) {
     const { pageNumber = 1, pageSize = 10 } = req.query
 
-    const offset = (pageNumber - 1) * pageSize
+    const pageSizeParsed = parseInt(pageSize, 10)
+    const pageNumberParsed = parseInt(pageNumber, 10)
 
-    const [users, { 'count(`id`)': totalCount }] = await Promise.all([
-      User.query()
-        .offset(offset)
-        .limit(pageSize),
-      User.query()
-        .count('id')
-        .first(),
-    ])
+    try {
+      const { results: users, total } = await User.query().page(
+        pageNumberParsed - 1,
+        pageSizeParsed,
+      )
 
-    const totalPages = Math.ceil(totalCount / pageSize)
+      const totalPages = Math.ceil(total / pageSizeParsed)
 
-    res.json({ totalPages, totalCount, pageSize, users })
+      res.json({
+        totalPages,
+        totalCount: total,
+        pageSize: pageSizeParsed,
+        pageNumber: pageNumberParsed,
+        data: users,
+      })
+    } catch (error) {
+      next(error)
+    }
   }
 
   static async getOne (req, res) {
@@ -30,33 +45,51 @@ class UserController {
     res.json({ user })
   }
 
-  static async create (req, res) {
+  static async create (req, res, next) {
     const { body: userData } = req
 
-    const user = await User.query().insert(userData)
+    try {
+      const user = await User.query().insert(userData)
 
-    res.status(201).json({ user })
+      res.status(201).json({ user })
+    } catch (error) {
+      next(handleError(error))
+    }
   }
 
-  static update (req, res) {
+  static async update (req, res, next) {
     const { id } = req.params
     const { body: userData } = req
 
-    const user = User.query()
-      .update(userData)
-      .where('id', id)
+    try {
+      const user = await User.query()
+        .where('id', id)
+        .first()
 
-    res.json({ user })
+      if (!user) {
+        throw createError(404)
+      }
+
+      await user.$query().update(userData)
+
+      res.json({ user })
+    } catch (error) {
+      next(handleError(error))
+    }
   }
 
-  static async delete (req, res) {
+  static async delete (req, res, next) {
     const { id } = req.params
 
-    await User.query()
-      .del()
-      .where('id', id)
+    try {
+      await User.query()
+        .del()
+        .where('id', id)
 
-    res.status(204).json()
+      res.status(204).json()
+    } catch (error) {
+      next(error)
+    }
   }
 }
 

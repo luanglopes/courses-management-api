@@ -21,12 +21,15 @@
   "dependencies": {
     "bcrypt": "^3.0.6",
     "cors": "^2.8.5",
+    "debug": "^4.1.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "http-errors": "^1.7.3",
     "knex": "^0.20.1",
     "morgan": "^1.9.1",
     "objection": "^1.6.11",
+    "objection-unique": "^1.2.0",
+    "objection-visibility": "^0.4.0",
     "sqlite3": "^4.1.0"
   },
   "pre-commit": "lint"

@@ -1,6 +1,6 @@
 require('dotenv').config()
 const app = require('./app')
-const debug = require('debug')('class-management:server')
+const debug = require('debug')('courses-management:server')
 const http = require('http')
 
 const server = http.createServer(app)

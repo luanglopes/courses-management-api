@@ -1,9 +1,11 @@
 const createError = require('http-errors')
 const express = require('express')
 const logger = require('morgan')
+const debug = require('debug')('courses-management:error')
 
 const indexRouter = require('./routes/index')
 const database = require('./database')
+const environment = require('./config/environment')
 
 const app = express()
 
@@ -21,12 +23,21 @@ app.use((_req, _res, next) => {
 })
 
 // error handler
-app.use((err, _req, res) => {
+app.use((err, _req, res, _next) => {
   const code = err.status || 500
-  const message = err.message || 'Internal server error'
-  const error = process.env.NODE_ENV === 'development' ? err : undefined
+  let message = err.message || 'Internal server error'
 
-  res.status(code).json({ code, message, error })
+  if (code === 500) {
+    if (environment.isProduction) {
+      message = 'Internal server error'
+    }
+
+    if (environment.isDevelopment) {
+      debug(err)
+    }
+  }
+
+  res.status(code).json({ ...err, message })
 })
 
 module.exports = app

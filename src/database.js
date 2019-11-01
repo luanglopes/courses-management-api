@@ -1,15 +1,15 @@
 const Knex = require('knex')
 const { Model, knexSnakeCaseMappers } = require('objection')
-const debug = require('debug')('class-management:server')
+const debug = require('debug')('courses-management:server')
 
 const knexConfig = require('../knexfile')
+const environment = require('./config/environment')
 
 const init = () => {
   try {
-    const config =
-      process.env.NODE_ENV === 'production'
-        ? knexConfig.productioni
-        : knexConfig.development
+    const config = environment.isProduction
+      ? knexConfig.production
+      : knexConfig.development
 
     const knex = Knex({
       ...config,
