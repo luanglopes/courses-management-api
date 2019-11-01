@@ -19,11 +19,15 @@
     "pre-commit": "^1.2.2"
   },
   "dependencies": {
+    "bcrypt": "^3.0.6",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "http-errors": "^1.7.3",
-    "morgan": "^1.9.1"
+    "knex": "^0.20.1",
+    "morgan": "^1.9.1",
+    "objection": "^1.6.11",
+    "sqlite3": "^4.1.0"
   },
   "pre-commit": "lint"
 }

@@ -3,8 +3,11 @@ const express = require('express')
 const logger = require('morgan')
 
 const indexRouter = require('./routes/index')
+const database = require('./database')
 
 const app = express()
+
+database.init()
 
 app.use(logger('dev'))
 app.use(express.json())
