@@ -3,6 +3,8 @@ exports.up = knex => {
     table.increments()
     table.string('name')
     table.text('description')
+    table.integer('author_id').unsigned()
+    table.foreign('author_id').references('users.id')
   })
 }
 

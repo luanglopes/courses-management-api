@@ -5,7 +5,6 @@ const unique = require('objection-unique')({
 })
 
 const BaseModel = require('./BaseModel')
-const Course = require('./Course')
 
 class User extends unique(BaseModel) {
   static get tableName () {
@@ -29,15 +28,11 @@ class User extends unique(BaseModel) {
   static get relationMappings () {
     return {
       courses: {
-        relation: BaseModel.ManyToManyRelation,
-        modelClass: Course,
+        relation: BaseModel.HasManyRelation,
+        modelClass: require('./Course'),
         join: {
           from: 'users.id',
-          through: {
-            from: 'coursesUsers.userId',
-            to: 'coursesUsers.courseId',
-          },
-          to: 'courses.id',
+          to: 'courses.author_id',
         },
       },
     }

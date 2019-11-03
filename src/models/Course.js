@@ -1,5 +1,4 @@
 const BaseModel = require('./BaseModel')
-const Lesson = require('./Lesson')
 
 class Course extends BaseModel {
   static get tableName () {
@@ -21,12 +20,20 @@ class Course extends BaseModel {
 
   static get relationMappings () {
     return {
-      pets: {
+      lessons: {
         relation: BaseModel.HasManyRelation,
-        modelClass: Lesson,
+        modelClass: 'Lesson',
         join: {
           from: 'courses.id',
           to: 'lessons.courseId',
+        },
+      },
+      author: {
+        relation: BaseModel.BelongsToOneRelation,
+        modelClass: 'User',
+        join: {
+          from: 'courses.authorId',
+          to: 'users.id',
         },
       },
     }
