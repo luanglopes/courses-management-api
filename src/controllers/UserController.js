@@ -35,14 +35,18 @@ class UserController {
     }
   }
 
-  static async getOne (req, res) {
+  static async getOne (req, res, next) {
     const { id } = req.params
 
-    const user = await User.query()
-      .where('id', id)
-      .first()
+    try {
+      const user = await User.query()
+        .where('id', id)
+        .first()
 
-    res.json({ user })
+      res.json({ user })
+    } catch (error) {
+      next(error)
+    }
   }
 
   static async create (req, res, next) {
