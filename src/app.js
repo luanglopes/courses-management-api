@@ -3,7 +3,7 @@ const express = require('express')
 const logger = require('morgan')
 const debug = require('debug')('courses-management:error')
 
-const indexRouter = require('./routes/index')
+const appRouter = require('./routes/index')
 const database = require('./database')
 const environment = require('./config/environment')
 
@@ -15,29 +15,32 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-app.use('/', indexRouter)
+app.use(appRouter)
 
-// catch 404 and forward to error handler
+// handle 404
 app.use((_req, _res, next) => {
   next(createError(404))
 })
 
-// error handler
-app.use((err, _req, res, _next) => {
-  const code = err.status || 500
-  let message = err.message || 'Internal server error'
+// default error handler
+app.use((error, _req, res, _next) => {
+  const statusCode = error.status || 500
+  let errorMessage = error.message || 'Internal server error'
 
-  if (code === 500) {
-    if (environment.isProduction) {
-      message = 'Internal server error'
-    }
-
-    if (environment.isDevelopment) {
-      debug(err)
-    }
+  if (statusCode === 500 && environment.isProduction) {
+    // Don't return unhandled error messages
+    errorMessage = 'Internal server error'
   }
 
-  res.status(code).json({ ...err, message })
+  if (environment.isDevelopment) {
+    // log complete error stack
+    debug(error)
+  } else {
+    // log only error message
+    debug(error.message)
+  }
+
+  res.status(statusCode).json({ ...error, message: errorMessage })
 })
 
 module.exports = app
