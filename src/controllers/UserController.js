@@ -2,32 +2,26 @@ const createError = require('http-errors')
 
 const User = require('../models/User')
 
-const handleError = error => {
-  return error.name === 'ValidationError'
-    ? createError(400, { fields: error.data })
-    : error
-}
-
 class UserController {
   static async list (req, res, next) {
     const { pageNumber = 1, pageSize = 10 } = req.query
 
-    const pageSizeParsed = parseInt(pageSize, 10)
-    const pageNumberParsed = parseInt(pageNumber, 10)
+    const parsedPageSize = parseInt(pageSize, 10)
+    const parsedPageNumber = parseInt(pageNumber, 10)
 
     try {
       const { results: users, total } = await User.query().page(
-        pageNumberParsed - 1,
-        pageSizeParsed,
+        parsedPageNumber - 1,
+        parsedPageSize,
       )
 
-      const totalPages = Math.ceil(total / pageSizeParsed)
+      const totalPages = Math.ceil(total / parsedPageSize)
 
       res.json({
         totalPages,
         totalCount: total,
-        pageSize: pageSizeParsed,
-        pageNumber: pageNumberParsed,
+        pageSize: parsedPageSize,
+        pageNumber: parsedPageNumber,
         data: users,
       })
     } catch (error) {
@@ -43,6 +37,10 @@ class UserController {
         .where('id', id)
         .first()
 
+      if (!user) {
+        throw createError(404)
+      }
+
       res.json({ user })
     } catch (error) {
       next(error)
@@ -57,7 +55,7 @@ class UserController {
 
       res.status(201).json({ user })
     } catch (error) {
-      next(handleError(error))
+      next(error)
     }
   }
 
@@ -78,7 +76,7 @@ class UserController {
 
       res.json({ user })
     } catch (error) {
-      next(handleError(error))
+      next(error)
     }
   }
 
@@ -91,6 +89,34 @@ class UserController {
         .where('id', id)
 
       res.status(204).json()
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  static async listCourses (req, res, next) {
+    const { id } = req.params
+    const { pageNumber = 1, pageSize = 10 } = req.query
+
+    const parsedPageSize = parseInt(pageSize, 10)
+    const parsedPageNumber = parseInt(pageNumber, 10)
+
+    try {
+      const user = await User.query()
+        .eager('courses')
+        .modifyEager('courses', builder => {
+          builder.page(parsedPageNumber, parsedPageSize)
+        })
+        .where('id', id)
+        .first()
+
+      if (!user) {
+        createError(404)
+      }
+
+      const courses = user.courses
+
+      res.json({ courses })
     } catch (error) {
       next(error)
     }
