@@ -6,6 +6,13 @@ module.exports = {
     },
     useNullAsDefault: false,
   },
+  test: {
+    client: 'sqlite3',
+    connection: {
+      filename: './tests/test.sqlite3',
+    },
+    useNullAsDefault: false,
+  },
   production: {
     client: 'sqlite3',
     connection: {

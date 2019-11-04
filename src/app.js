@@ -1,3 +1,4 @@
+require('dotenv').config()
 const createError = require('http-errors')
 const express = require('express')
 const logger = require('morgan')
@@ -6,22 +7,36 @@ const appRouter = require('./routes/index')
 const database = require('./database')
 const errorHanlder = require('./errorHandler')
 
-const app = express()
+class App {
+  constructor () {
+    this.express = express()
 
-database.init()
+    this.database()
+    this.middlewares()
+    this.routes()
+  }
 
-app.use(logger('dev'))
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
+  database () {
+    database.init()
+  }
 
-app.use(appRouter)
+  middlewares () {
+    this.express.use(logger('dev'))
+    this.express.use(express.json())
+    this.express.use(express.urlencoded({ extended: false }))
+  }
 
-// handle 404
-app.use((_req, _res, next) => {
-  next(createError(404))
-})
+  routes () {
+    this.express.use(appRouter)
 
-// default error handler
-app.use(errorHanlder.handle)
+    // handle 404
+    this.express.use((_req, _res, next) => {
+      next(createError(404))
+    })
 
-module.exports = app
+    // default error handler
+    this.express.use(errorHanlder.handle)
+  }
+}
+
+module.exports = new App().express

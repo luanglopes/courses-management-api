@@ -7,16 +7,14 @@ const environment = require('./config/environment')
 
 const init = () => {
   try {
-    const config = environment.isProduction
-      ? knexConfig.production
-      : knexConfig.development
+    const config = knexConfig[environment.current] || knexConfig.development
 
     const knex = Knex({
       ...config,
       ...knexSnakeCaseMappers(),
     })
 
-    Model.knex(knex)
+    return Model.knex(knex)
   } catch (error) {
     debug('Error connecting to Database', error)
 

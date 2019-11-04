@@ -1,4 +1,3 @@
-require('dotenv').config()
 const app = require('./app')
 const debug = require('debug')('courses-management:server')
 const http = require('http')
