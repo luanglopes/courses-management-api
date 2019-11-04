@@ -20,3 +20,7 @@ Para rodar o projeto siga os seguintes passos:
 # Testes
 
 Para executar os testes basta realizar os dois primeiros passos da seção **Rodando o Projeto** e executar o comando `npm run test-integration`
+
+# Documentação
+
+O aquivo `routes_collection.json` na raiz do projeto é um arquivo de collection do postman que contém as rotas da API
