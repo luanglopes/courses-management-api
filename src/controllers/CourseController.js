@@ -1,8 +1,8 @@
 const createError = require('http-errors')
 
-const User = require('../models/User')
+const Course = require('../models/Course')
 
-class UserController {
+class CourseController {
   static async list (req, res, next) {
     const { pageNumber = 1, pageSize = 10 } = req.query
 
@@ -10,7 +10,7 @@ class UserController {
     const parsedPageNumber = parseInt(pageNumber, 10)
 
     try {
-      const { results: users, total } = await User.query().page(
+      const { results: courses, total } = await Course.query().page(
         parsedPageNumber - 1,
         parsedPageSize,
       )
@@ -22,7 +22,7 @@ class UserController {
         totalCount: total,
         pageSize: parsedPageSize,
         pageNumber: parsedPageNumber,
-        data: users,
+        data: courses,
       })
     } catch (error) {
       next(error)
@@ -33,27 +33,27 @@ class UserController {
     const { id } = req.params
 
     try {
-      const user = await User.query()
+      const course = await Course.query()
         .where('id', id)
         .first()
 
-      if (!user) {
+      if (!course) {
         throw createError(404)
       }
 
-      res.json({ user })
+      res.json({ user: course })
     } catch (error) {
       next(error)
     }
   }
 
   static async create (req, res, next) {
-    const { body: userData } = req
+    const { body: courseData } = req
 
     try {
-      const user = await User.query().insert(userData)
+      const course = await Course.query().insert(courseData)
 
-      res.status(201).json({ user })
+      res.status(201).json({ course })
     } catch (error) {
       next(error)
     }
@@ -61,20 +61,20 @@ class UserController {
 
   static async update (req, res, next) {
     const { id } = req.params
-    const { body: userData } = req
+    const { body: courseData } = req
 
     try {
-      const user = await User.query()
+      const course = await Course.query()
         .where('id', id)
         .first()
 
-      if (!user) {
+      if (!course) {
         throw createError(404)
       }
 
-      await user.$query().update(userData)
+      await course.$query().update(courseData)
 
-      res.json({ user })
+      res.json({ user: course })
     } catch (error) {
       next(error)
     }
@@ -84,7 +84,7 @@ class UserController {
     const { id } = req.params
 
     try {
-      await User.query()
+      await Course.query()
         .del()
         .where('id', id)
 
@@ -94,26 +94,26 @@ class UserController {
     }
   }
 
-  static async listCourses (req, res, next) {
+  static async listLessons (req, res, next) {
     const { id } = req.params
 
     try {
-      const user = await User.query()
-        .eager('courses')
+      const course = await Course.query()
+        .eager('lessons')
         .where('id', id)
         .first()
 
-      if (!user) {
+      if (!course) {
         throw createError(404)
       }
 
-      const courses = user.courses
+      const lessons = course.lessons
 
-      res.json({ courses })
+      res.json({ lessons })
     } catch (error) {
       next(error)
     }
   }
 }
 
-module.exports = UserController
+module.exports = CourseController

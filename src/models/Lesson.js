@@ -11,6 +11,7 @@ class Lesson extends BaseModel {
 
       properties: {
         id: { type: 'integer' },
+        courseId: { type: 'integer' },
         name: { type: 'string', minLength: 1, maxLength: 255 },
         description: { type: 'string', minLength: 1, maxLength: 1000 },
       },

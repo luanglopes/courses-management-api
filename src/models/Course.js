@@ -12,6 +12,7 @@ class Course extends BaseModel {
 
       properties: {
         id: { type: 'integer' },
+        authorId: { type: 'integer' },
         name: { type: 'string', minLength: 1, maxLength: 255 },
         description: { type: 'string', minLength: 1, maxLength: 1000 },
       },
@@ -22,7 +23,7 @@ class Course extends BaseModel {
     return {
       lessons: {
         relation: BaseModel.HasManyRelation,
-        modelClass: 'Lesson',
+        modelClass: require('./Lesson'),
         join: {
           from: 'courses.id',
           to: 'lessons.courseId',

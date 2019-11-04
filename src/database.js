@@ -13,7 +13,7 @@ const init = () => {
 
     const knex = Knex({
       ...config,
-      ...knexSnakeCaseMappers,
+      ...knexSnakeCaseMappers(),
     })
 
     Model.knex(knex)
